@@ -1,0 +1,183 @@
+{
+  "project": "Rhythm Camembert - Desktop Companion",
+  "character": "Camembert",
+  "version": "1.0",
+  "spec": {
+    "canvas": [512, 512],
+    "safe_zone": [400, 400],
+    "format": "png",
+    "background": "transparent",
+    "anchor": "bottom-center",
+    "default_fps": 10,
+    "scales": ["@1x", "@2x"],
+    "color_palette": {
+      "fur": "#0D0D0F",
+      "eye_ear": "#B9A7FF",
+      "accent": "#8E7CF6",
+      "highlight": "#E7E2FF",
+      "blush": "#F3B6C9",
+      "tear": "#8FD4E8"
+    }
+  },
+  "categories": [
+    {
+      "id": "idle", "path": "character/idle",
+      "clips": [
+        { "id": "idle", "frames": 6, "loop": true, "desc": "앉아서 호흡" },
+        { "id": "idle_look", "frames": 4, "loop": false, "desc": "두리번" },
+        { "id": "idle_tail", "frames": 4, "loop": true, "desc": "꼬리 살랑" },
+        { "id": "idle_ear", "frames": 3, "loop": false, "desc": "귀 쫑긋" }
+      ]
+    },
+    {
+      "id": "blink", "path": "character/blink", "overlay": true,
+      "clips": [
+        { "id": "blink", "frames": 4, "loop": false },
+        { "id": "blink_double", "frames": 5, "loop": false },
+        { "id": "wink", "frames": 3, "loop": false }
+      ]
+    },
+    {
+      "id": "emotion", "path": "character/emotion", "overlay": true,
+      "clips": [
+        { "id": "emo_neutral", "frames": 1 },
+        { "id": "emo_happy", "frames": 3 },
+        { "id": "emo_excited", "frames": 4 },
+        { "id": "emo_sad", "frames": 3 },
+        { "id": "emo_surprised", "frames": 3 },
+        { "id": "emo_angry", "frames": 3 },
+        { "id": "emo_sleepy", "frames": 3 },
+        { "id": "emo_sleeping", "frames": 4, "loop": true },
+        { "id": "emo_love", "frames": 3 },
+        { "id": "emo_curious", "frames": 3 },
+        { "id": "emo_cry", "frames": 4 },
+        { "id": "emo_shy", "frames": 3 }
+      ]
+    },
+    {
+      "id": "walk", "path": "character/walk",
+      "clips": [
+        { "id": "walk_r", "frames": 8, "loop": true, "mirror": "walk_l" },
+        { "id": "walk_start", "frames": 2 },
+        { "id": "walk_stop", "frames": 2 }
+      ]
+    },
+    {
+      "id": "run", "path": "character/run",
+      "clips": [ { "id": "run_r", "frames": 6, "loop": true, "mirror": "run_l" } ]
+    },
+    {
+      "id": "jump", "path": "character/jump",
+      "clips": [
+        { "id": "jump", "frames": 6 },
+        { "id": "jump_happy", "frames": 6 }
+      ]
+    },
+    {
+      "id": "sit", "path": "character/sit",
+      "clips": [
+        { "id": "sit_down", "frames": 4 },
+        { "id": "stand_up", "frames": 4 },
+        { "id": "sit_idle", "frames": 4, "loop": true }
+      ]
+    },
+    {
+      "id": "music", "path": "character/music",
+      "clips": [
+        { "id": "headphone_on", "frames": 4 },
+        { "id": "headphone_off", "frames": 4 },
+        { "id": "music_idle", "frames": 6, "loop": true },
+        { "id": "music_nod", "frames": 4, "loop": true },
+        { "id": "music_sway", "frames": 6, "loop": true }
+      ]
+    },
+    {
+      "id": "dance", "path": "character/dance",
+      "clips": [
+        { "id": "dance_basic", "frames": 8, "loop": true },
+        { "id": "dance_spin", "frames": 6, "loop": true },
+        { "id": "dance_star", "frames": 6, "loop": true, "prop": "prop_star" }
+      ]
+    },
+    {
+      "id": "coding", "path": "character/coding",
+      "clips": [
+        { "id": "coding_open", "frames": 3, "prop": "prop_laptop" },
+        { "id": "coding_type", "frames": 6, "loop": true, "prop": "prop_laptop" },
+        { "id": "coding_think", "frames": 4 },
+        { "id": "coding_close", "frames": 3 }
+      ]
+    },
+    {
+      "id": "sleep", "path": "character/sleep",
+      "clips": [
+        { "id": "yawn", "frames": 4 },
+        { "id": "doze", "frames": 4, "loop": true },
+        { "id": "lie_down", "frames": 4 },
+        { "id": "sleep_loop", "frames": 6, "loop": true, "fx": "fx_zzz" },
+        { "id": "wake_up", "frames": 4 }
+      ]
+    },
+    {
+      "id": "wave", "path": "character/wave",
+      "clips": [
+        { "id": "wave", "frames": 5 },
+        { "id": "wave_both", "frames": 5 },
+        { "id": "bow", "frames": 4 }
+      ]
+    },
+    {
+      "id": "cheer", "path": "character/cheer",
+      "clips": [
+        { "id": "cheer_pompom", "frames": 6, "prop": "prop_pompom" },
+        { "id": "cheer_fighting", "frames": 5 },
+        { "id": "clap", "frames": 4 }
+      ]
+    },
+    {
+      "id": "game", "path": "character/game",
+      "clips": [
+        { "id": "game_ready", "frames": 3 },
+        { "id": "game_play", "frames": 6, "loop": true },
+        { "id": "game_perfect", "frames": 5, "fx": "fx_perfect_text" },
+        { "id": "game_combo", "frames": 4, "fx": "fx_combo_text" },
+        { "id": "game_fail", "frames": 5 },
+        { "id": "game_result", "frames": 4 }
+      ]
+    },
+    {
+      "id": "reaction", "path": "character/reaction",
+      "clips": [
+        { "id": "poke", "frames": 4 },
+        { "id": "pet", "frames": 5, "loop": true, "fx": "fx_heart" },
+        { "id": "drag", "frames": 4, "loop": true },
+        { "id": "drop", "frames": 4 },
+        { "id": "dizzy", "frames": 5 },
+        { "id": "surprised_jump", "frames": 4 }
+      ]
+    },
+    {
+      "id": "play", "path": "character/play",
+      "clips": [
+        { "id": "stretch", "frames": 5 },
+        { "id": "roll_star", "frames": 6, "prop": "prop_star_big" },
+        { "id": "chase_tail", "frames": 6, "loop": true },
+        { "id": "groom", "frames": 5 },
+        { "id": "peek", "frames": 4 }
+      ]
+    },
+    {
+      "id": "special", "path": "character/special",
+      "clips": [
+        { "id": "celebrate", "frames": 6, "fx": "fx_confetti" },
+        { "id": "levelup", "frames": 5, "fx": "fx_star_burst" },
+        { "id": "night_form_transform", "frames": 6, "accessory": "acc_bat_wings" },
+        { "id": "night_form_idle", "frames": 6, "loop": true, "accessory": "acc_bat_wings" },
+        { "id": "birthday", "frames": 5, "prop": "prop_cake" },
+        { "id": "newyear", "frames": 4 },
+        { "id": "halloween", "frames": 4, "accessory": "acc_witch_hat" },
+        { "id": "christmas", "frames": 4, "accessory": "acc_santa_hat" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "project": "Rhythm Camembert - Desktop Companion",
+  "version": "1.0",
+  "home_state": "idle",
+  "layers": {
+    "base": ["idle", "walk", "run", "jump", "sit", "sleep", "coding", "music", "dance", "game", "reaction", "play", "special"],
+    "overlay": ["blink", "emotion", "effects"],
+    "accessory": ["head", "face", "ear", "neck", "body", "hand", "back"]
+  },
+  "states": {
+    "idle": { "clip": "idle", "loop": true, "next_random": ["idle_look", "idle_tail", "idle_ear"] },
+    "music": {
+      "sequence": ["headphone_on", "music_idle"],
+      "loop_clip": "music_idle",
+      "interrupt_variants": ["music_nod", "music_sway", "dance_basic", "dance_spin"],
+      "exit": ["headphone_off", "idle"]
+    },
+    "coding": {
+      "sequence": ["coding_open", "coding_type"],
+      "loop_clip": "coding_type",
+      "interrupt_variants": ["coding_think"],
+      "exit": ["coding_close", "idle"]
+    },
+    "game": {
+      "sequence": ["game_ready", "game_play"],
+      "loop_clip": "game_play",
+      "reactions": {
+        "perfect": ["game_perfect", "game_play"],
+        "combo": ["game_combo", "game_play"],
+        "fail": ["game_fail", "game_play"],
+        "clear": ["game_result", "celebrate", "idle"]
+      }
+    },
+    "sleep_progression": {
+      "stages": [
+        { "after_sec": 180, "state": "play_random" },
+        { "after_sec": 600, "sequence": ["yawn", "doze"] },
+        { "after_sec": 1200, "sequence": ["lie_down", "sleep_loop"], "loop_clip": "sleep_loop" }
+      ],
+      "wake": ["wake_up", "idle"]
+    },
+    "drag": {
+      "sequence": ["drag"],
+      "loop_clip": "drag",
+      "exit": ["drop", "dizzy", "idle"]
+    },
+    "click": { "sequence": ["poke", "idle"] },
+    "double_click": { "sequence": ["surprised_jump", "idle"] },
+    "pet": { "sequence": ["pet"], "loop_clip": "pet", "exit": ["emo_happy", "idle"] },
+    "launch": { "sequence": ["wave", "idle"], "fade_in": true },
+    "quit": { "sequence": ["bow"], "fade_out": true },
+    "night_form": {
+      "sequence": ["night_form_transform", "night_form_idle"],
+      "loop_clip": "night_form_idle",
+      "exit_reverse": ["idle"]
+    },
+    "play_random": {
+      "pick_one": ["stretch", "roll_star", "chase_tail", "groom", "peek"],
+      "then": "idle"
+    },
+    "cheer": { "pick_one": ["cheer_pompom", "cheer_fighting", "clap"], "then": "idle" }
+  },
+  "transition_rules": {
+    "default_return": "idle",
+    "interrupt_policy": "higher_priority_cuts_lower",
+    "non_interruptible": ["drag", "game", "night_form_transform", "quit"],
+    "blink_interval_sec": [3, 7],
+    "random_idle_interval_sec": [8, 20]
+  }
+}

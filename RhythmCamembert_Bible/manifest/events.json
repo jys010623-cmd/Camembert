@@ -1,0 +1,57 @@
+{
+  "project": "Rhythm Camembert - Desktop Companion",
+  "version": "1.0",
+  "events": [
+    { "id": "app_launch",        "group": "lifecycle",   "trigger": "process_start",          "state": "launch",           "priority": 8 },
+    { "id": "app_quit",          "group": "lifecycle",   "trigger": "process_quit",           "state": "quit",             "priority": 10 },
+    { "id": "system_boot",       "group": "lifecycle",   "trigger": "os_boot",                "sequence": ["stretch", "wave", "idle"], "priority": 8 },
+    { "id": "system_shutdown",   "group": "lifecycle",   "trigger": "os_shutdown",            "sequence": ["emo_sleepy", "lie_down"], "priority": 10 },
+    { "id": "screen_lock",       "group": "lifecycle",   "trigger": "session_lock",           "state": "sleep_loop",       "priority": 6 },
+    { "id": "screen_unlock",     "group": "lifecycle",   "trigger": "session_unlock",         "sequence": ["wake_up", "wave", "idle"], "priority": 7 },
+    { "id": "low_battery",       "group": "lifecycle",   "trigger": "battery_low",            "state": "emo_sad",          "priority": 7 },
+
+    { "id": "click",             "group": "interaction", "trigger": "mouse_click",            "state": "click",            "priority": 9 },
+    { "id": "double_click",      "group": "interaction", "trigger": "mouse_double_click",     "state": "double_click",     "priority": 9 },
+    { "id": "right_click",       "group": "interaction", "trigger": "mouse_right_click",      "state": "emo_curious", "opens": "context_menu", "priority": 9 },
+    { "id": "drag_start",        "group": "interaction", "trigger": "drag_begin",             "state": "drag",             "priority": 10 },
+    { "id": "drag_drop",         "group": "interaction", "trigger": "drag_end",               "sequence": ["drop", "dizzy", "idle"], "priority": 10 },
+    { "id": "long_hover",        "group": "interaction", "trigger": "hover_ms>1500",          "state": "pet",              "priority": 8 },
+    { "id": "cursor_near",       "group": "interaction", "trigger": "cursor_distance<120",    "behavior": "eye_track_cursor", "priority": 5 },
+    { "id": "cursor_fast",       "group": "interaction", "trigger": "cursor_speed_high",      "state": "surprised_jump",   "priority": 6 },
+
+    { "id": "music_start",       "group": "app_detect",  "trigger": "audio_session_active",   "state": "music",            "priority": 7 },
+    { "id": "music_stop",        "group": "app_detect",  "trigger": "audio_session_idle",     "exit_state": "music",       "priority": 7 },
+    { "id": "vscode_open",       "group": "app_detect",  "trigger": "process:Code.exe",       "state": "coding",           "priority": 6 },
+    { "id": "vscode_close",      "group": "app_detect",  "trigger": "process_end:Code.exe",   "exit_state": "coding",      "priority": 6 },
+    { "id": "github_open",       "group": "app_detect",  "trigger": "url_contains:github.com","sequence": ["emo_curious", "fx_sparkle", "idle"], "priority": 5 },
+    { "id": "chrome_open",       "group": "app_detect",  "trigger": "process:chrome.exe",     "state": "emo_curious",      "priority": 4 },
+    { "id": "terminal_open",     "group": "app_detect",  "trigger": "process:terminal",       "state": "coding_think",     "priority": 5 },
+    { "id": "rhythm_launch",     "group": "app_detect",  "trigger": "process:RhythmCamembert","state": "game",             "priority": 9 },
+    { "id": "rhythm_perfect",    "group": "app_detect",  "trigger": "game_event:perfect",     "reaction": "perfect",       "priority": 9 },
+    { "id": "rhythm_combo",      "group": "app_detect",  "trigger": "game_event:combo",       "reaction": "combo",         "priority": 9 },
+    { "id": "rhythm_fail",       "group": "app_detect",  "trigger": "game_event:miss",        "reaction": "fail",          "priority": 9 },
+    { "id": "rhythm_clear",      "group": "app_detect",  "trigger": "game_event:clear",       "reaction": "clear",         "priority": 9 },
+    { "id": "build_success",     "group": "app_detect",  "trigger": "build_result:pass",      "state": "cheer",            "priority": 6 },
+    { "id": "build_fail",        "group": "app_detect",  "trigger": "build_result:fail",      "sequence": ["emo_sad", "cheer_fighting", "idle"], "priority": 6 },
+
+    { "id": "idle_bored",        "group": "timer",       "trigger": "idle_sec>=180",          "state": "play_random",      "priority": 3 },
+    { "id": "idle_long",         "group": "timer",       "trigger": "idle_sec>=600",          "sequence": ["yawn", "doze"], "priority": 3 },
+    { "id": "idle_sleep",        "group": "timer",       "trigger": "idle_sec>=1200",         "sequence": ["lie_down", "sleep_loop"], "priority": 2 },
+    { "id": "night_time",        "group": "timer",       "trigger": "hour>=22||hour<5",       "state": "night_form",       "priority": 4 },
+    { "id": "morning",          "group": "timer",       "trigger": "first_activity_after_6am","sequence": ["wave", "idle"], "priority": 5 },
+    { "id": "work_long",         "group": "timer",       "trigger": "active_sec>=3600",       "state": "cheer",            "priority": 5 },
+    { "id": "random_idle",       "group": "timer",       "trigger": "interval:8-20s",         "behavior": "random_idle_variant", "priority": 1 },
+    { "id": "random_special",    "group": "timer",       "trigger": "low_chance_interval",    "state": "play_random",      "priority": 2 },
+    { "id": "hourly_chime",      "group": "timer",       "trigger": "on_the_hour",            "sequence": ["music_nod", "idle"], "priority": 3 },
+
+    { "id": "affection_up",      "group": "growth",      "trigger": "interaction_threshold",  "state": "emo_love",         "priority": 5 },
+    { "id": "levelup",           "group": "growth",      "trigger": "exp_threshold",          "state": "levelup",          "priority": 6 },
+    { "id": "feed",              "group": "growth",      "trigger": "menu:feed",              "sequence": ["emo_happy", "idle"], "priority": 5 },
+    { "id": "gift",              "group": "growth",      "trigger": "menu:gift",              "sequence": ["surprised_jump", "emo_happy", "idle"], "prop": "prop_gift", "priority": 6 },
+
+    { "id": "birthday_date",     "group": "seasonal",    "trigger": "date:user_birthday",     "state": "birthday",         "priority": 8 },
+    { "id": "halloween_date",    "group": "seasonal",    "trigger": "date:10-31",             "state": "halloween",        "priority": 6 },
+    { "id": "christmas_date",    "group": "seasonal",    "trigger": "date:12-25",             "state": "christmas",        "priority": 6 },
+    { "id": "newyear_date",      "group": "seasonal",    "trigger": "date:01-01",             "state": "newyear",          "priority": 6 }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "project": "Rhythm Camembert - Desktop Companion",
+  "version": "1.0",
+  "render_strategy": "overlay_anchor",
+  "note": "액세서리는 본체 앵커 좌표에 정적 오버레이(1~4뷰)로 부착. 크게 움직이는 body/back만 애니메이션 세트 제작.",
+  "slots": [
+    { "id": "head", "anchor": "head_top",  "z": 5, "overrides": ["ear"] },
+    { "id": "face", "anchor": "face_center","z": 6 },
+    { "id": "ear",  "anchor": "ear_pair",  "z": 4 },
+    { "id": "neck", "anchor": "neck",       "z": 3 },
+    { "id": "body", "anchor": "torso",      "z": 2, "animated": true },
+    { "id": "hand", "anchor": "hand_r",     "z": 6 },
+    { "id": "back", "anchor": "back",       "z": 1, "animated": true }
+  ],
+  "views": ["front", "three_quarter", "side", "back"],
+  "accessories": [
+    { "id": "acc_none",        "name": "기본",          "slot": null,   "default": true },
+    { "id": "acc_headset",     "name": "헤드셋",        "slot": "ear",  "color": "#8E7CF6", "tag": "signature" },
+    { "id": "acc_glasses",     "name": "안경",          "slot": "face", "color": "#B9A7FF" },
+    { "id": "acc_sunglasses",  "name": "선글라스",      "slot": "face", "color": "#0D0D0F" },
+    { "id": "acc_beanie",      "name": "비니",          "slot": "head", "season": "winter" },
+    { "id": "acc_winter_hat",  "name": "방울모자",      "slot": "head", "season": "winter" },
+    { "id": "acc_santa_hat",   "name": "산타모자",      "slot": "head", "season": "christmas" },
+    { "id": "acc_party_hat",   "name": "파티고깔",      "slot": "head", "season": "party" },
+    { "id": "acc_witch_hat",   "name": "마녀모자",      "slot": "head", "season": "halloween" },
+    { "id": "acc_flower_crown","name": "꽃화관",        "slot": "head", "season": "spring" },
+    { "id": "acc_ribbon",      "name": "머리리본",      "slot": "head", "color": "#B9A7FF" },
+    { "id": "acc_bell_collar", "name": "방울목걸이",    "slot": "neck", "color": "#B9A7FF" },
+    { "id": "acc_scarf",       "name": "목도리",        "slot": "neck", "season": "winter" },
+    { "id": "acc_bowtie",      "name": "나비넥타이",    "slot": "neck", "color": "#8E7CF6" },
+    { "id": "acc_hoodie",      "name": "후드티",        "slot": "body", "color": "#8E7CF6", "animated": true },
+    { "id": "acc_cape",        "name": "망토",          "slot": "body", "animated": true },
+    { "id": "acc_raincoat",    "name": "우비",          "slot": "body", "season": "rain", "animated": true },
+    { "id": "acc_umbrella",    "name": "우산",          "slot": "hand", "season": "rain" },
+    { "id": "acc_bat_wings",   "name": "박쥐날개",      "slot": "back", "tag": "night_form", "animated": true },
+    { "id": "acc_angel_wings", "name": "천사날개",      "slot": "back", "tag": "event", "animated": true },
+    { "id": "acc_backpack",    "name": "배낭",          "slot": "back" }
+  ],
+  "rules": {
+    "one_per_slot": true,
+    "head_over_ear": true,
+    "locked_regions": ["face_ratio", "ear_shape", "tail", "silhouette", "eye_position"],
+    "min_views_required": 4
+  }
+}
