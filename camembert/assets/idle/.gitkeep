@@ -1,0 +1,5 @@
+# Drop PNG frames here.
+# Two layouts are supported:
+#   assets/idle/<clip-name>/0001.png, 0002.png, ...   (one clip per sub-folder)
+#   assets/idle/0001.png, 0002.png, ...               (single "default" clip)
+# Frames are sorted naturally, so frame_2.png comes before frame_10.png.

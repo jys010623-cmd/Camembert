@@ -1,0 +1,77 @@
+:root {
+  color-scheme: light dark;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  /* Frameless pet: no text selection, no native drag image. */
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+#pet-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  /* Manual dragging is handled in JS via pointer events. */
+  touch-action: none;
+}
+
+#pet-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: auto; /* smooth downscale of the high-res character art */
+}
+
+/* Placeholder graphic removed — when there is no character the canvas is simply
+   hidden and the window stays fully transparent. */
+
+/* ---- Developer debug panel (toggle with F3) ---- */
+.debug-panel {
+  position: fixed;
+  top: 6px;
+  left: 6px;
+  z-index: 9999;
+  min-width: 150px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(12, 12, 16, 0.82);
+  color: #e6e6e6;
+  font: 11px/1.5 ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  pointer-events: none; /* never steals clicks from the pet */
+  user-select: none;
+}
+
+.debug-panel__title {
+  margin-bottom: 4px;
+  font-weight: 700;
+  color: #f5c842;
+  letter-spacing: 0.3px;
+}
+
+.debug-panel__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.debug-panel__label {
+  opacity: 0.6;
+}
+
+.debug-panel__value {
+  font-weight: 600;
+  text-align: right;
+}
