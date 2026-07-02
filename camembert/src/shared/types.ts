@@ -44,6 +44,16 @@ export interface AssetManifest {
   generatedAt: number
 }
 
+/** Window position and the horizontal travel limits for walking. */
+export interface WalkBounds {
+  /** Current window top-left, in screen px. */
+  x: number
+  y: number
+  /** Leftmost / rightmost allowed window x within the display work area. */
+  minX: number
+  maxX: number
+}
+
 /** Commands the main process (tray / context menu) can push to the renderer. */
 export type PetCommand =
   | { type: 'play'; category: AnimationCategory; clip?: string }
@@ -81,6 +91,15 @@ export interface DebugInfo extends AnimationTelemetry {
   /** Opaque bounding box of the character in native PNG px (0 if unknown). */
   bboxW: number
   bboxH: number
+  /** Current window position while walking (screen px). */
+  walkX: number
+  walkY: number
+  /** Walk direction, or null when not walking. */
+  walkDir: 'left' | 'right' | null
+  /** Walk speed in px/sec (0 when not walking). */
+  walkSpeed: number
+  /** Walk animation frame rate (fps) driving the step cadence. */
+  walkFps: number
 }
 
 /** High-level behaviour states of the pet. */

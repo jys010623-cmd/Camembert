@@ -1,6 +1,7 @@
 import { BrowserWindow, screen, shell } from 'electron'
 import { join } from 'node:path'
 import { appConfig } from '@main/config/appConfig'
+import type { WalkBounds } from '@shared/types'
 
 /** Owns the single pet BrowserWindow and its window-level behaviours. */
 export class WindowManager {
@@ -105,6 +106,35 @@ export class WindowManager {
       width: this.intended.width,
       height: this.intended.height
     })
+  }
+
+  /**
+   * Move the window to an absolute top-left position. Like {@link moveBy}, it
+   * re-asserts the intended size via setBounds to avoid the transparent-window
+   * grow-on-move bug on Windows.
+   */
+  moveTo(x: number, y: number): void {
+    if (!this.win) return
+    this.win.setBounds({
+      x: Math.round(x),
+      y: Math.round(y),
+      width: this.intended.width,
+      height: this.intended.height
+    })
+  }
+
+  /**
+   * Report the window's current position and the horizontal range its left edge
+   * may occupy within the work area of the display it currently sits on.
+   */
+  getWalkBounds(): WalkBounds | null {
+    if (!this.win) return null
+    const [x, y] = this.win.getPosition()
+    const area = screen.getDisplayMatching(this.win.getBounds()).workArea
+    const width = this.intended.width
+    const minX = Math.round(area.x)
+    const maxX = Math.round(area.x + area.width - width)
+    return { x, y, minX: Math.min(minX, maxX), maxX: Math.max(minX, maxX) }
   }
 
   /** Toggle click-through. When ignored, clicks pass to windows underneath. */

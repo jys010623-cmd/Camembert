@@ -8,6 +8,10 @@ export const IpcChannels = {
   WindowSetIgnoreMouse: 'window:setIgnoreMouse',
   /** renderer -> main (send): resize the window to a specific content size. */
   WindowSetSize: 'window:setSize',
+  /** renderer -> main (invoke): get window position + horizontal walk limits. */
+  WindowGetWalkBounds: 'window:getWalkBounds',
+  /** renderer -> main (send): move the window to an absolute top-left position. */
+  WindowMoveTo: 'window:moveTo',
   /** renderer -> main (send): show the native right-click context menu. */
   ShowContextMenu: 'ui:showContextMenu',
   /** renderer -> main (send): quit the app. */

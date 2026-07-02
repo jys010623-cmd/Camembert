@@ -23,8 +23,8 @@ class App {
 
   // Runtime-toggleable behaviour flags.
   private clickThrough = false
-  private skipTaskbar = appConfig.window.skipTaskbar
-  private randomActions = appConfig.pet.randomAction.enabled
+  private skipTaskbar: boolean = appConfig.window.skipTaskbar
+  private randomActions: boolean = appConfig.pet.randomAction.enabled
   private debug = false
   private size: PetSize = 'medium'
 
@@ -118,6 +118,12 @@ class App {
 
     ipcMain.on(IpcChannels.WindowSetSize, (_e, width: number, height: number) => {
       this.windows.setSize(width, height)
+    })
+
+    ipcMain.handle(IpcChannels.WindowGetWalkBounds, () => this.windows.getWalkBounds())
+
+    ipcMain.on(IpcChannels.WindowMoveTo, (_e, x: number, y: number) => {
+      this.windows.moveTo(x, y)
     })
 
     ipcMain.on(IpcChannels.ShowContextMenu, (e) => {

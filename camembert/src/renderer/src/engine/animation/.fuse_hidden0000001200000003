@@ -35,7 +35,7 @@ export class AnimationManager {
    * of all frames across all clips. Using one constant rectangle keeps the
    * character at a consistent scale between animations and guarantees no frame's
    * motion is cropped (the union contains every pose). Null until measured, or
-   * if pixels are unreadable -- callers then fall back to the per-clip box.
+   * if pixels are unreadable — callers then fall back to the per-clip box.
    */
   private globalSourceRect: BBox | null = null
 
@@ -52,7 +52,7 @@ export class AnimationManager {
    * Measure the union of opaque bounding boxes over every frame of every clip,
    * and adopt it as the constant crop rectangle for all animations. Frames are
    * loaded and released one clip at a time so peak memory stays bounded even
-   * with many large (2048x2048) source images. Safe to run in the background;
+   * with many large (2048×2048) source images. Safe to run in the background;
    * once done it updates the live source rect and redraws. Returns the union
    * (or null if nothing could be measured).
    */

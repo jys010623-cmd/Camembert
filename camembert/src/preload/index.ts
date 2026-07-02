@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IpcChannels } from '@shared/ipc'
-import type { AssetManifest, PetCommand } from '@shared/types'
+import type { AssetManifest, PetCommand, WalkBounds } from '@shared/types'
 
 /** The typed API surface exposed to the renderer as `window.petApi`. */
 const petApi = {
@@ -19,6 +19,14 @@ const petApi = {
   /** Resize the pet window to a specific content size (CSS px). */
   setWindowSize: (width: number, height: number): void =>
     ipcRenderer.send(IpcChannels.WindowSetSize, width, height),
+
+  /** Get the window position and the horizontal limits for walking. */
+  getWalkBounds: (): Promise<WalkBounds | null> =>
+    ipcRenderer.invoke(IpcChannels.WindowGetWalkBounds),
+
+  /** Move the window to an absolute top-left position (used while walking). */
+  moveWindowTo: (x: number, y: number): void =>
+    ipcRenderer.send(IpcChannels.WindowMoveTo, x, y),
 
   /** Ask the main process to show the native right-click menu. */
   showContextMenu: (): void => ipcRenderer.send(IpcChannels.ShowContextMenu),

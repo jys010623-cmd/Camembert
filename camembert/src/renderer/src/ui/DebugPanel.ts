@@ -23,7 +23,7 @@ export class DebugPanel {
     title.textContent = 'Camembert · debug'
     this.el.appendChild(title)
 
-    for (const key of ['State', 'Animation', 'Frame', 'FPS', 'Queue', 'PNGs', 'Size', 'Win', 'BBox'] as const) {
+    for (const key of ['State', 'Animation', 'Frame', 'FPS', 'Queue', 'PNGs', 'Size', 'Win', 'BBox', 'Pos', 'Dir', 'Speed'] as const) {
       const row = document.createElement('div')
       row.className = 'debug-panel__row'
 
@@ -84,5 +84,14 @@ export class DebugPanel {
     this.values['Size'].textContent = `${info.sizeLabel} · ${info.displayW}×${info.displayH}`
     this.values['Win'].textContent = `${window.innerWidth}×${window.innerHeight}`
     this.values['BBox'].textContent = info.bboxW ? `${info.bboxW}×${info.bboxH}` : '—'
+
+    const walking = info.walkDir !== null
+    this.values['Pos'].textContent = walking ? `${info.walkX}, ${info.walkY}` : '—'
+    this.values['Dir'].textContent = walking
+      ? (info.walkDir === 'left' ? '← left' : 'right →')
+      : '—'
+    this.values['Speed'].textContent = walking
+      ? `${info.walkSpeed} px/s · ${info.walkFps} fps`
+      : '—'
   }
 }

@@ -41,6 +41,12 @@ export class PetRenderer {
   /** Alpha hit-testing needs canvas pixels; if reads fail we fall back to an ellipse. */
   private hitMode: HitMode = 'alpha'
 
+  /** When true the character is mirrored horizontally (e.g. walking left). */
+  private flipped = false
+  /** Walk bounce: vertical offset (px) and vertical scale, composed with flip. */
+  private bounceY = 0
+  private bounceScaleY = 1
+
   constructor(
     private readonly root: HTMLElement,
     private readonly callbacks: PetRendererCallbacks = {}
@@ -88,6 +94,33 @@ export class PetRenderer {
     return this.hitMode
   }
 
+  /** Mirror the character horizontally (CSS transform; hit-testing compensates). */
+  setFlipped(flipped: boolean): void {
+    if (this.flipped === flipped) return
+    this.flipped = flipped
+    this.applyTransform()
+  }
+
+  /**
+   * Apply the walk bounce: a small upward hop (`offsetY`, negative = up) and a
+   * vertical squash (`scaleY`). Anchored at the feet (bottom-center) so the hop
+   * lifts the body while the head stays put; composed with the flip so the two
+   * never conflict.
+   */
+  setBounce(offsetY: number, scaleY: number): void {
+    if (this.bounceY === offsetY && this.bounceScaleY === scaleY) return
+    this.bounceY = offsetY
+    this.bounceScaleY = scaleY
+    this.applyTransform()
+  }
+
+  /** Compose flip (scaleX) + bounce (translateY, scaleY) into one transform. */
+  private applyTransform(): void {
+    const sx = this.flipped ? -1 : 1
+    this.canvas.style.transformOrigin = 'center bottom'
+    this.canvas.style.transform = `translateY(${this.bounceY}px) scale(${sx}, ${this.bounceScaleY})`
+  }
+
   /**
    * Match the canvas backing store to the window's inner size × devicePixelRatio.
    * Using the window size (not the canvas element's measured box) avoids any
@@ -128,8 +161,10 @@ export class PetRenderer {
 
     if (this.hitMode === 'alpha') {
       const dpr = window.devicePixelRatio || 1
-      const px = Math.min(this.canvas.width - 1, Math.max(0, Math.floor(localX * dpr)))
+      let px = Math.min(this.canvas.width - 1, Math.max(0, Math.floor(localX * dpr)))
       const py = Math.min(this.canvas.height - 1, Math.max(0, Math.floor(localY * dpr)))
+      // The canvas is mirrored via CSS when flipped, so mirror the sampled x too.
+      if (this.flipped) px = this.canvas.width - 1 - px
       try {
         const alpha = this.ctx.getImageData(px, py, 1, 1).data[3]
         return alpha >= ALPHA_HIT_THRESHOLD

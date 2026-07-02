@@ -15,11 +15,9 @@ import {
   type StateServices
 } from '@renderer/engine/state/StateManager'
 import { RandomActionManager } from '@renderer/engine/random/RandomActionManager'
-import { WalkController } from '@renderer/engine/walk/WalkController'
 import { PetRenderer } from '@renderer/pet/PetRenderer'
 import { DebugPanel } from '@renderer/ui/DebugPanel'
 import {
-  CATEGORY_FPS,
   CATEGORY_LOOPS,
   PLACEHOLDER_ACTION_MS,
   RANDOM_ACTION,
@@ -43,7 +41,6 @@ export class Pet {
   private readonly queue: AnimationQueue
   private readonly machine = new PetStateMachine()
   private readonly random: RandomActionManager
-  private readonly walk: WalkController
   private readonly debug: DebugPanel
 
   private hasAssets = false
@@ -93,16 +90,6 @@ export class Pet {
       () => this.machine.is('idle'),
       (state) => this.machine.transition(state),
       { actions: RANDOM_ACTION.actions }
-    )
-
-    this.walk = new WalkController(
-      {
-        getBounds: () => window.petApi.getWalkBounds(),
-        moveTo: (x, y) => window.petApi.moveWindowTo(x, y),
-        setFlipped: (flipped) => this.renderer.setFlipped(flipped),
-        setBounce: (offsetY, scaleY) => this.renderer.setBounce(offsetY, scaleY)
-      },
-      CATEGORY_FPS.walk
     )
 
     this.machine.onChange((state) => this.onStateChanged(state))
@@ -206,12 +193,6 @@ export class Pet {
     if (!willShowCharacter) {
       this.renderer.setStatusText(`상태: ${state} · PNG 대기 중`)
     }
-
-    // Walk the window across the desktop while in the walk state; stop (and
-    // un-mirror) on any other state. The queue returns us to idle when the
-    // walk's timed duration elapses, which stops the motion here.
-    if (state === 'walk') void this.walk.start()
-    else this.walk.stop()
   }
 
   /** Force a state from the tray menu, interrupting whatever is playing. */
@@ -250,7 +231,6 @@ export class Pet {
   private getDebugInfo(): DebugInfo {
     const telemetry = this.animations.getTelemetry()
     const bbox = this.animations.getCurrentBBox() ?? this.idleBBox
-    const walk = this.walk.getState()
     return {
       ...telemetry,
       state: this.machine.currentName,
@@ -262,12 +242,7 @@ export class Pet {
       displayW: this.displayW,
       displayH: this.displayH,
       bboxW: bbox?.w ?? 0,
-      bboxH: bbox?.h ?? 0,
-      walkX: walk.x,
-      walkY: walk.y,
-      walkDir: walk.active ? (walk.direction === -1 ? 'left' : 'right') : null,
-      walkSpeed: walk.speed,
-      walkFps: walk.fps
+      bboxH: bbox?.h ?? 0
     }
   }
 }

@@ -10,7 +10,7 @@ export const CATEGORY_FPS: Record<AnimationCategory, number> = {
   music: 12,
   dance: 14,
   sleep: 6,
-  walk: 10,
+  walk: 14,
   turnaround: 12
 }
 
