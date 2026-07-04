@@ -1,0 +1,4 @@
+# Put your character's idle frames here.
+# For today's single-image test, drop:  idle_01.png
+# One PNG is enough — it will loop as a static idle. Add more frames later
+# (idle_02.png, idle_03.png, ...) and they play in natural order.

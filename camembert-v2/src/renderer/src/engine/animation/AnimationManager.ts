@@ -1,0 +1,227 @@
+import {
+  ANIMATION_CATEGORIES,
+  EMPTY_MANIFEST,
+  type AnimationCategory,
+  type AnimationClip,
+  type AnimationTelemetry,
+  type AssetManifest
+} from '@shared/types'
+import { SpriteLoader } from './SpriteLoader'
+import { AnimationPlayer } from './AnimationPlayer'
+import { computeOpaqueBBox, type BBox } from './ImageAnalyzer'
+import { CATEGORY_FPS, CATEGORY_LOOPS, DEFAULT_FPS } from '@renderer/config/animationConfig'
+
+export interface PlayClipOptions {
+  /** Specific clip name; if omitted a random clip in the category is chosen. */
+  clip?: string
+  /** Override loop behaviour (defaults to the category setting). */
+  loop?: boolean
+  /** Called when a one-shot clip finishes. */
+  onEnd?: () => void
+}
+
+/**
+ * Bridges the asset manifest and the low-level AnimationPlayer: it resolves a
+ * (category, clip) request into loaded frames and starts playback.
+ */
+export class AnimationManager {
+  private manifest: AssetManifest = EMPTY_MANIFEST
+  private readonly loader = new SpriteLoader()
+  private readonly player: AnimationPlayer
+  private current: { category: AnimationCategory; clip: string } | null = null
+  private currentBBox: BBox | null = null
+  /**
+   * A single crop rectangle shared by every clip: the union of the opaque boxes
+   * of all frames across all clips. Using one constant rectangle keeps the
+   * character at a consistent scale between animations and guarantees no frame's
+   * motion is cropped (the union contains every pose). Null until measured, or
+   * if pixels are unreadable -- callers then fall back to the per-clip box.
+   */
+  private globalSourceRect: BBox | null = null
+
+  constructor(ctx: CanvasRenderingContext2D) {
+    this.player = new AnimationPlayer(ctx)
+  }
+
+  /** The crop box currently in effect (global if measured, else per-clip). */
+  getCurrentBBox(): BBox | null {
+    return this.globalSourceRect ?? this.currentBBox
+  }
+
+  /**
+   * Measure the union of opaque bounding boxes over every frame of every clip,
+   * and adopt it as the constant crop rectangle for all animations. Frames are
+   * loaded and released one clip at a time so peak memory stays bounded even
+   * with many large (2048x2048) source images. Safe to run in the background;
+   * once done it updates the live source rect and redraws. Returns the union
+   * (or null if nothing could be measured).
+   */
+  async computeGlobalBBox(): Promise<BBox | null> {
+    let union: BBox | null = null
+    for (const category of ANIMATION_CATEGORIES) {
+      for (const clip of this.getClips(category)) {
+        const key = `${category}/${clip.name}`
+        try {
+          const frames = await this.loader.load(key, clip.frames)
+          for (const img of frames) {
+            const box = computeOpaqueBBox(img)
+            if (box) union = unionBBox(union, box)
+          }
+        } catch {
+          /* skip clips that fail to load or whose pixels can't be read */
+        } finally {
+          // Free this clip's decoded images before measuring the next one.
+          if (this.current?.category !== category || this.current?.clip !== clip.name) {
+            this.loader.release(key)
+          }
+        }
+      }
+    }
+
+    if (union) {
+      this.globalSourceRect = union
+      this.currentBBox = union
+      this.player.setSourceRect(union)
+      this.player.redraw()
+    }
+    return union
+  }
+
+  /** Redraw the current frame (after a resize). */
+  redraw(): void {
+    this.player.redraw()
+  }
+
+  /**
+   * Load a category's first frame and compute its opaque bounding box, without
+   * changing what is currently playing. Used to size the window to the idle
+   * character. Returns null if the category has no frames or pixels are
+   * unreadable.
+   */
+  async computeBBoxFor(category: AnimationCategory): Promise<BBox | null> {
+    const clip = this.pickClip(category)
+    if (!clip) return null
+    try {
+      const frames = await this.loader.load(`${category}/${clip.name}`, clip.frames)
+      return frames.length ? computeOpaqueBBox(frames[0]) : null
+    } catch {
+      return null
+    }
+  }
+
+  setManifest(manifest: AssetManifest): void {
+    this.manifest = manifest
+    this.loader.clear()
+  }
+
+  hasAnyClips(): boolean {
+    return this.manifest.totalClips > 0
+  }
+
+  /** Total number of PNG frames loaded across all categories. */
+  getTotalFrames(): number {
+    return this.manifest.totalFrames
+  }
+
+  /** Total number of clips loaded across all categories. */
+  getTotalClips(): number {
+    return this.manifest.totalClips
+  }
+
+  hasCategory(category: AnimationCategory): boolean {
+    return (this.manifest.categories[category]?.length ?? 0) > 0
+  }
+
+  getClips(category: AnimationCategory): AnimationClip[] {
+    return this.manifest.categories[category] ?? []
+  }
+
+  getCurrent(): { category: AnimationCategory; clip: string } | null {
+    return this.current
+  }
+
+  /**
+   * Keep the idle animation on screen as a fallback when a requested category
+   * has no frames. No-op if idle is already playing, or if there are no idle
+   * frames at all (in which case the placeholder handles visibility).
+   */
+  playFallbackIdle(): void {
+    if (!this.hasCategory('idle')) return
+    if (this.current?.category === 'idle' && this.player.isPlaying) return
+    void this.play('idle')
+  }
+
+  /** Snapshot of what's playing right now, for the debug panel. */
+  getTelemetry(): AnimationTelemetry {
+    const frame = this.player.getFrameInfo()
+    return {
+      category: this.current?.category ?? null,
+      clip: this.current?.clip ?? null,
+      frameIndex: frame.index,
+      frameCount: frame.total,
+      fps: this.player.getMeasuredFps(),
+      playing: this.player.isPlaying
+    }
+  }
+
+  /**
+   * Resolve and play a clip. Returns true if playback started, false if the
+   * requested category/clip has no frames (caller can fall back to idle).
+   */
+  async play(category: AnimationCategory, options: PlayClipOptions = {}): Promise<boolean> {
+    const clip = this.pickClip(category, options.clip)
+    if (!clip) return false
+
+    const key = `${category}/${clip.name}`
+    let frames: HTMLImageElement[]
+    try {
+      frames = await this.loader.load(key, clip.frames)
+    } catch (err) {
+      console.error(`[AnimationManager] ${key} failed to load`, err)
+      return false
+    }
+    if (frames.length === 0) return false
+
+    this.current = { category, clip: clip.name }
+    // Prefer the shared global crop box (consistent scale across clips + no
+    // motion is ever cropped). Before it's measured, fall back to this clip's
+    // own first-frame box; contain-fit applies if pixels can't be read at all.
+    this.currentBBox = this.globalSourceRect ?? computeOpaqueBBox(frames[0])
+    this.player.setSourceRect(this.currentBBox)
+    this.player.play(frames, {
+      fps: CATEGORY_FPS[category] ?? DEFAULT_FPS,
+      loop: options.loop ?? CATEGORY_LOOPS[category],
+      onEnd: options.onEnd
+    })
+    return true
+  }
+
+  stop(): void {
+    this.player.stop()
+  }
+
+  pause(): void {
+    this.player.pause()
+  }
+
+  resume(): void {
+    this.player.resume()
+  }
+
+  private pickClip(category: AnimationCategory, name?: string): AnimationClip | null {
+    const clips = this.getClips(category)
+    if (clips.length === 0) return null
+    if (name) return clips.find((c) => c.name === name) ?? null
+    return clips[Math.floor(Math.random() * clips.length)]
+  }
+}
+
+/** Smallest box containing both inputs (all boxes share the same image size). */
+function unionBBox(a: BBox | null, b: BBox): BBox {
+  if (!a) return { ...b }
+  const minX = Math.min(a.x, b.x)
+  const minY = Math.min(a.y, b.y)
+  const maxX = Math.max(a.x + a.w, b.x + b.w)
+  const maxY = Math.max(a.y + a.h, b.y + b.h)
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY, imgW: a.imgW, imgH: a.imgH }
+}
