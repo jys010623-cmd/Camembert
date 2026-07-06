@@ -34,7 +34,7 @@ body {
   left: 0;
   bottom: 0; /* character is bottom-anchored; headroom sits above it */
   width: 100%;
-  height: calc(100% - var(--headroom, 64px));
+  height: calc(100% - var(--headroom, 130px));
   image-rendering: auto; /* smooth downscale of the high-res character art */
 }
 
@@ -50,7 +50,7 @@ body {
   position: fixed;
   left: 50%;
   /* Bottom edge sits just above the character's head (the headroom line). */
-  bottom: calc(100% - var(--headroom, 64px) + 8px);
+  bottom: calc(100% - var(--headroom, 130px) + 8px);
   transform: translate(-50%, 8px);
   z-index: 50;
   max-width: 94%;

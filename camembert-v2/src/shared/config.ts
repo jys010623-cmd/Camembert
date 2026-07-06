@@ -19,7 +19,7 @@ export const DEFAULT_SIZE: PetSize = 'medium'
  * The character canvas occupies the window minus this headroom, anchored to the
  * bottom; the bubble lives in the headroom band and grows upward.
  */
-export const SPEECH_HEADROOM_PX = 64
+export const SPEECH_HEADROOM_PX = 130
 
 export function sizeToPx(size: PetSize): number {
   return SIZE_PRESETS[size] ?? SIZE_PRESETS[DEFAULT_SIZE]

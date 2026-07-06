@@ -19,7 +19,7 @@ import { WalkController } from '@renderer/engine/walk/WalkController'
 import { PetRenderer } from '@renderer/pet/PetRenderer'
 import { DebugPanel } from '@renderer/ui/DebugPanel'
 import { SpeechBubble } from '@renderer/ui/SpeechBubble'
-import { pickLine, type SpeechTrigger } from '@renderer/config/speechLines'
+import { pickLine, pickGreeting, pickIdleChatter, pickSleepLine, pickHungryLine, pickWakeLine, pickTimedLine, type SpeechTrigger } from '@renderer/config/speechLines'
 import { PetStats, type PetNeed } from '@renderer/engine/stats/PetStats'
 import { MicDanceDetector } from '@renderer/engine/audio/MicDanceDetector'
 import {
@@ -63,6 +63,7 @@ export class Pet {
   private motionMode: 'none' | 'follow' | 'perch' = 'none'
   private micDancing = false
   private beatTimer: ReturnType<typeof setTimeout> | null = null
+  private wasSleeping = false
 
   // Display sizing.
   private sizeLabel: PetSize = DEFAULT_SIZE
@@ -152,8 +153,8 @@ export class Pet {
     this.setupSystemMonitors()
     // Persist stats periodically so they survive a restart.
     setInterval(() => window.petApi.saveStats(this.stats.snapshot()), 20_000)
-    // Greet once things are on screen.
-    setTimeout(() => this.speech.say(pickLine('greeting')), 600)
+    // Greet once things are on screen (time-of-day aware).
+    setTimeout(() => this.speech.say(pickGreeting()), 600)
   }
 
   /**
@@ -269,7 +270,7 @@ export class Pet {
 
   /** A click plays a quick emotion reaction (from idle) plus a line. */
   private onClick(): void {
-    this.speech.say(pickLine('click'))
+    this.speech.say(pickTimedLine('click'))
     if (this.autonomySuspended()) return
     if (this.machine.is('idle')) this.machine.transition('emotion')
   }
@@ -285,13 +286,19 @@ export class Pet {
     // Feed the needs model so energy recovers while sleeping.
     this.stats.setSleeping(state === 'sleep')
 
+    // 잠에서 깰 때(sleep -> 다른 상태) 시간대에 맞는 기상 대사.
+    if (this.wasSleeping && state !== 'sleep' && !this.autonomySuspended() && Math.random() < 0.6) {
+      this.speech.say(pickWakeLine())
+    }
+    this.wasSleeping = state === 'sleep'
+
     // Occasional chatter tied to the state (skipped while autonomy is suspended).
     if (!this.autonomySuspended()) {
       if (state === 'dance') this.speechMaybe('dance', 0.5)
       else if (state === 'music') this.speechMaybe('music', 0.5)
-      else if (state === 'sleep') this.speechMaybe('sleep', 0.7)
+      else if (state === 'sleep' && Math.random() < 0.7) this.speech.say(pickSleepLine())
       else if (state === 'emotion') this.speechMaybe('happy', 0.3)
-      else if (state === 'idle') this.speechMaybe('idleChat', 0.15)
+      else if (state === 'idle' && Math.random() < 0.22) this.speech.say(pickIdleChatter())
     }
 
     if (state === 'walk') void this.walk.start()
@@ -341,13 +348,13 @@ export class Pet {
       case 'feed':
         this.stats.feed()
         window.petApi.saveStats(this.stats.snapshot())
-        this.speech.say(pickLine('fed'))
+        this.speech.say(pickTimedLine('fed'))
         this.flashEmotionIfIdle()
         break
       case 'playWith':
         this.stats.playWith()
         window.petApi.saveStats(this.stats.snapshot())
-        this.speech.say(pickLine('played'))
+        this.speech.say(pickTimedLine('played'))
         this.flashEmotionIfIdle()
         break
     }
@@ -372,7 +379,7 @@ export class Pet {
   }
 
   private speechMaybe(trigger: SpeechTrigger, probability: number): void {
-    if (Math.random() < probability) this.speech.say(pickLine(trigger))
+    if (Math.random() < probability) this.speech.say(pickTimedLine(trigger))
   }
 
   private flashEmotionIfIdle(): void {
@@ -399,7 +406,8 @@ export class Pet {
       sleepy: 'sleepy',
       bored: 'bored'
     }
-    this.speech.say(pickLine(line[need]))
+    if (need === 'hungry') this.speech.say(pickHungryLine())
+    else this.speech.say(pickTimedLine(line[need]))
     if (need === 'sleepy' && !this.autonomySuspended() && this.machine.is('idle')) {
       this.machine.transition('sleep')
     }
